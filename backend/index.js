@@ -1,8 +1,10 @@
 import express from "express";
 import { PORT, mongoDBURL } from "./config.js";
 import mongoose from "mongoose";
+import { Book } from "./models/bookModels.js";
 
 const app = express();
+app.use(express.json());
 
 try {
     const connection = await mongoose.connect(mongoDBURL);
@@ -17,6 +19,51 @@ app.get("/", (req, res)=> {
     console.log(req);
     return res.status(234).send("Welcome to the MERN stack tutorial")
 });
+
+
+// Route for saving a book
+app.post('/api/book', async(req, res)=>{
+    try {
+
+        // Validation
+        if ( !req.body.title || !req.body.author || !req.body.publishYear )
+        {
+            return res.status(400).send({
+                message: "Send all the required fields: title, author, publishYear"
+            });
+        }
+
+        //Creating a new document
+        const newBook = {
+            title: req.body.title,
+            author: req.body.author,
+            publishYear: req.body.publishYear,
+        };
+
+        //Saving it in our NoSQL
+        const book = await Book.create(newBook);
+
+        //Return the status to show while fetching api
+        return res.status(201).send(book);
+
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: error.message });
+    }
+})
+
+app.get('/api/book', async(req, res)=>{
+    try {
+        const books = await Book.find();
+        return res.status(201).send(books)
+    } catch (error) {
+        res.status(500).send({
+            message: error.message
+        });
+    }
+})
+
 
 app.listen(PORT, ()=> {
     console.log(`App is listening on port: ${ PORT }`);
