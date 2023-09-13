@@ -1,7 +1,17 @@
 import express from "express";
-import { PORT } from "./config.js";
+import { PORT, mongoDBURL } from "./config.js";
+import mongoose from "mongoose";
 
 const app = express();
+
+try {
+    const connection = await mongoose.connect(mongoDBURL);
+    if (connection){
+        console.log("MongoDB is connected");
+    }
+} catch (error) {
+    console.log("MongoDB not connected: ",error);
+}
 
 app.get("/", (req, res)=> {
     console.log(req);
