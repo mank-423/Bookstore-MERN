@@ -53,10 +53,14 @@ app.post('/api/book', async(req, res)=>{
     }
 })
 
+// Route to get all the books
 app.get('/api/book', async(req, res)=>{
     try {
         const books = await Book.find();
-        return res.status(201).send(books)
+        return res.status(201).send({
+            count: books.length,
+            data: books
+        })
     } catch (error) {
         res.status(500).send({
             message: error.message
@@ -64,6 +68,22 @@ app.get('/api/book', async(req, res)=>{
     }
 })
 
+//Route to get single book
+app.get('/api/book/:id', async(req, res)=>{
+    try {
+        
+        const { id } = req.params;
+
+        const book = await Book.findById(id);
+
+        return res.status(200).send(book);
+
+    } catch (error) {
+        res.status(500).send({
+            message: error.message
+        });
+    }
+})
 
 app.listen(PORT, ()=> {
     console.log(`App is listening on port: ${ PORT }`);
