@@ -1,10 +1,23 @@
 import express from "express";
 import { PORT, mongoDBURL } from "./config.js";
 import mongoose from "mongoose";
-import { Book } from "./models/bookModels.js";
+import booksRouter from './routes/booksRoute.js';
+import cors from 'cors';
 
 const app = express();
+
+// Middlewate for parsin request body
 app.use(express.json());
+
+//Middleware to handle CORS
+// 1. first method
+// app.use(cors());
+// 2. Allow custome origin
+app.use(cors({
+    origin: 'http://localhosr:3000',
+    methods: ['GET', 'POST', 'PUT'],
+    allowedHeaders: ['Content-Type'],
+}))
 
 try {
     const connection = await mongoose.connect(mongoDBURL);
@@ -20,70 +33,8 @@ app.get("/", (req, res)=> {
     return res.status(234).send("Welcome to the MERN stack tutorial")
 });
 
-
-// Route for saving a book
-app.post('/api/book', async(req, res)=>{
-    try {
-
-        // Validation
-        if ( !req.body.title || !req.body.author || !req.body.publishYear )
-        {
-            return res.status(400).send({
-                message: "Send all the required fields: title, author, publishYear"
-            });
-        }
-
-        //Creating a new document
-        const newBook = {
-            title: req.body.title,
-            author: req.body.author,
-            publishYear: req.body.publishYear,
-        };
-
-        //Saving it in our NoSQL
-        const book = await Book.create(newBook);
-
-        //Return the status to show while fetching api
-        return res.status(201).send(book);
-
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ message: error.message });
-    }
-})
-
-// Route to get all the books
-app.get('/api/book', async(req, res)=>{
-    try {
-        const books = await Book.find();
-        return res.status(201).send({
-            count: books.length,
-            data: books
-        })
-    } catch (error) {
-        res.status(500).send({
-            message: error.message
-        });
-    }
-})
-
-//Route to get single book
-app.get('/api/book/:id', async(req, res)=>{
-    try {
-        
-        const { id } = req.params;
-
-        const book = await Book.findById(id);
-
-        return res.status(200).send(book);
-
-    } catch (error) {
-        res.status(500).send({
-            message: error.message
-        });
-    }
-})
+//Handling /books with bookRouter middleware
+app.use("/api/book", booksRouter);
 
 app.listen(PORT, ()=> {
     console.log(`App is listening on port: ${ PORT }`);
