@@ -11,13 +11,13 @@ app.use(express.json());
 
 //Middleware to handle CORS
 // 1. first method
-app.use(cors());
+// app.use(cors());
 // 2. Allow custome origin
-// app.use(cors({
-//     origin: 'http://localhosr:3000',
-//     methods: ['GET', 'POST', 'PUT'],
-//     allowedHeaders: ['Content-Type'],
-// }))
+app.use(cors({
+    origin: 'http://localhosr:3000',
+    methods: ['GET', 'POST', 'PUT'],
+    allowedHeaders: ['Content-Type'],
+}))
 
 try {
     const connection = await mongoose.connect(mongoDBURL);
