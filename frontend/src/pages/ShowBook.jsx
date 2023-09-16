@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom'
 import BackButton from '../components/BackButton'
 import Spinner from '../components/Spinner'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 function ShowBook() {
 
   const [book, setBook] = useState({});
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     setLoading(true);
