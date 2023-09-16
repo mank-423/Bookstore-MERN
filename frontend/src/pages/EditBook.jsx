@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import BackButton from '../components/BackButton'
 import Spinner from '../components/Spinner'
 import axios from 'axios'
@@ -10,6 +10,27 @@ function EditBook() {
   const [publishYear, setPublishYear] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  useEffect(()=>{
+    setLoading(true);
+    axios
+    .get(`http://localhost:4000/api/book/${id}`)
+    .then((response)=>{
+      //Need to use .data with response
+      setTitle(response.data.title);
+      setAuthor(response.data.author);
+      setPublishYear(response.data.publishYear);
+      setLoading(false);
+    })
+    .catch((error)=>{
+      setLoading(false);
+      alert("An error happened. Please check console");
+      console.log(error);
+
+    })
+  }, []);
+
 
   const onHandleSaveBook = () => {
     const data = {
@@ -19,7 +40,7 @@ function EditBook() {
     }
 
     axios
-      .post('http://localhost:4000/api/book', data)
+      .put(`http://localhost:4000/api/book/${id} `, data)
       .then(() => {
         setLoading(false);
         navigate('/');
